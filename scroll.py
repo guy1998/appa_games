@@ -20,15 +20,18 @@ def redrawWindow(screen, bgX):
     screen.blit(bg_img, (bgX, 0))
     map.draw_map(screen, bgX)
     saww.draw(screen)
-    knight.draw(screen)
+    knight.update(map.tiles, screen)
+
     pygame.display.update()  # updates the screen
 
 
 def game_screen(speed):
+
     bg_img = pygame.image.load('BG.png')
     bgX = 0
     start = time.time()
     while True:
+
         Font = pygame.font.SysFont('Calibre', 75)
         text = Font.render('Level 1', True, (255, 255, 255))
         screen.blit(text, (res[0]/5, res[1]/2))
@@ -44,7 +47,7 @@ def game_screen(speed):
                 pygame.quit()
 
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_a] and not (keys[pygame.K_d]) and not (bgX >= 278):
+        if keys[pygame.K_a] and not (keys[pygame.K_d]) and not (bgX >= 125):
             bgX += speed
             map.start_x += speed
             saww.x += speed

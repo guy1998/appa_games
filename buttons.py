@@ -1,6 +1,5 @@
 import pygame
 
-
 def drawRoundedRect(screen, x, y, colour=(128,128,128), radius=7, box_w=0, box_h=0):
     pygame.draw.circle(screen, colour, (x+radius, y+radius), radius)                  # TL corner
     pygame.draw.circle(screen, colour, (x+box_w-radius-1, y+radius), radius)          # TR corner
@@ -9,8 +8,6 @@ def drawRoundedRect(screen, x, y, colour=(128,128,128), radius=7, box_w=0, box_h
     # In-fill
     pygame.draw.rect(screen, colour, (x+radius, y, box_w-(2*radius), box_h))
     pygame.draw.rect(screen, colour, (x, y+radius, box_w, box_h-(2*radius)))
-
-
 
 
 class button:

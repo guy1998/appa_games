@@ -35,12 +35,21 @@ class Tile():
     def draw(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))
 
+    def collide(self, hitbox):
+        print(hitbox)
+        print(self.rect.x)
+        print(self.rect.y)
+        if self.rect.x <= hitbox[0] + hitbox[2] <= self.rect.x + 32:
+            if hitbox[1] + hitbox[3] > self.rect.y:
+                if hitbox[1] < 32 + self.rect.y:
+                    return True
+        return False
 
 class TileMap():
     def __init__(self, filename):
         self.tile_size = 32
-        self.start_x, self.start_y = 0, 558
-        self.tiles = self.load_tiles(filename)
+        self.start_x, self.start_y = 0, 0
+        self.tiles, self.rectangles = self.load_tiles(filename)
         self.map_surface = pygame.Surface((self.map_w, self.map_h))
         self.map_surface.set_colorkey((0, 0, 0))
         self.load_map()
@@ -51,6 +60,8 @@ class TileMap():
     def load_map(self):
         for tile in self.tiles:
             tile.draw(self.map_surface)
+        '''for rectangle_local in self.rectangles:
+            rectangle_local.draw(self.map_surface)'''
 
     def read_csv(self, filename):
         map = []
@@ -62,6 +73,7 @@ class TileMap():
 
     def load_tiles(self, filename):
         tiles = []
+        rectangles = []
         map = self.read_csv(filename)
         x, y = 0, 0
 
@@ -71,15 +83,20 @@ class TileMap():
             for tile in row:
                 if tile == '-1':
                     self.start_x = x * self.tile_size
-                    self.start_y += y * self.tile_size
+                    self.start_y = y * self.tile_size
                 elif tile == '1' or tile == '2':
-                    tiles.append(Tile(os.path.join('Tiles', 'Tile (2).png'), x * self.tile_size, (y * self.tile_size)))
+                    tiles.append(Tile(os.path.join('Tiles', 'Tile (2).png'), x * self.tile_size, (y * self.tile_size) ))
+                    rectangles.append(rectangle(x * self.tile_size, y * self.tile_size , 32, 32))
                 elif tile == '0':
-                    tiles.append(Tile(os.path.join('Tiles', 'Tile (1).png'), x * self.tile_size, y * self.tile_size))
+                    tiles.append(Tile(os.path.join('Tiles', 'Tile (1).png'), x * self.tile_size, y * self.tile_size) )
+                    rectangles.append(rectangle(x * self.tile_size, y * self.tile_size, 32, 32))
                 elif tile == '3' or tile == '6':
-                    tiles.append(Tile(os.path.join('Tiles', 'Tile (4).png'), x * self.tile_size, y * self.tile_size))
+                    tiles.append(Tile(os.path.join('Tiles', 'Tile (4).png'), x * self.tile_size, y * self.tile_size) )
+                    rectangles.append(rectangle(x * self.tile_size, y * self.tile_size , 32, 32))
                 elif tile == '4' or tile == '7' or tile == '8':
-                    tiles.append(Tile(os.path.join('Tiles', 'Tile (5).png'), x * self.tile_size, y * self.tile_size))
+                    tiles.append(Tile(os.path.join('Tiles', 'Tile (5).png'), x * self.tile_size, y * self.tile_size) )
+                    rectangles.append(rectangle(x * self.tile_size, y * self.tile_size , 32, 32))
+
 
 
                     # Move to next tile in current row
@@ -90,5 +107,21 @@ class TileMap():
             # Store the size of the tile map
         self.map_w, self.map_h = x * self.tile_size, y * self.tile_size
 
-        return tiles
+        return tiles, rectangles
 
+class rectangle():
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    def collide(self, hitbox):
+        if self.x <= hitbox[0] + hitbox[2] <= self.x + self.height:
+            if hitbox[1] + hitbox[3] > self.y:
+                if hitbox[1] < 32 + self.y:
+                    return True
+        return False
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, (0, 0, 0), (self.x, self.y, self.width, self.height))

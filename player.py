@@ -38,12 +38,13 @@ class player(object):
                     self.jumpCount = 0
                     self.jumping = False
                     self.runCount = 0
-
+                self.hit_box = pygame.Rect((self.x + 4, self.y), (self.width - 24, self.height - 10))
             elif self.running:
                 if self.runCount > 42:
                     self.runCount = 0
                 screen.blit(self.run[self.runCount // 6], (self.x, self.y))
                 self.runCount += 1
+                self.hit_box = pygame.Rect((self.x + 4, self.y), (self.width - 24, self.height - 13))
             elif not(self.running) and not(self.runningBack) and not(self.walking):
                 if self.idleCount > 42:
                     self.idleCount = 0
@@ -54,25 +55,37 @@ class player(object):
                     self.runCount = 0
                 screen.blit(self.runBack[self.runCount // 6], (self.x, self.y))
                 self.runCount += 1
+                self.hit_box = pygame.Rect((self.x + 4, self.y), (self.width - 24, self.height - 10))
             elif self.walking:
                 if self.walkCount > 42:
                     self.walkCount = 0
                 screen.blit(self.walk[self.walkCount // 6], (self.x, self.y))
+                self.hit_box = pygame.Rect((self.x + 4, self.y), (self.width - 24, self.height - 10))
                 self.walkCount += 1
 
 
 
-    def update(self, pressed_keys):
-        if pressed_keys[pygame.K_w]:
-            self.rect.move_ip(0, -5)
-        if pressed_keys[pygame.K_s]:
-            self.rect.move_ip(0, 5)
+
 
     def get_hits(self, tiles):
+        def check_collision(player_rect, target_rect):
+
+            #< rect(129, 547, 76, 90) > < rect(192, 160, 32, 32) >
+            pass
+
         hits = []
-        for tile in tiles:
-            if self.hit_box.colliderect(tile):
-                hits.append(tile)
+        for i in tiles:
+            print(i.rect)
+        new_tiles = filter(lambda tile:self.hit_box[0]+self.hit_box.width >= tile.rect.x >= self.hit_box[0] and tile.rect.y < 159, tiles)
+        for new_tile in list(new_tiles):
+            #print(self.hit_box, new_tile.rect)
+            new_tile.rect[1] += 558
+            '''if self.hit_box.colliderect(new_tile.rect):
+                hits.append(new_tile.rect)
+                print(True)'''
+
+            new_tile.rect[1] -= 558
+
         return hits
 
     def checkCollisionsx(self, tiles):
@@ -88,14 +101,20 @@ class player(object):
     def checkCollisionsy(self, tiles):
         collisions = self.get_hits(tiles)
         for tile in collisions:
-            if self.y < tile.y:  # Hit tile from the top
+            if self.jumpList[self.jumpCount] * 1.2 < 0:  # Hit tile from the top
                 self.jumping = False
                 #self.velocity.y = 0
-                self.y = tile.y + self.height
+                self.y = tile.y - self.height + 558
                 '''self.rect.bottom = self.position.y'''
-            elif self.y > tile.y:  # Hit tile from the bottom
-                while self.y != 0:
-                    self.y -= 20
-                self.jumping = False
+            #elif self.y > tile.y:  # Hit tile from the bottom
+
+                #while self.y != 0:
+                    #self.y -= 20
+                #self.jumping = False
                 '''self.position.y = tile.rect.bottom + self.rect.h
                 self.rect.bottom = self.position.y'''
+
+    def update(self, tiles, screen):
+        self.draw(screen)
+        if self.jumping:
+            self.checkCollisionsy(tiles)
